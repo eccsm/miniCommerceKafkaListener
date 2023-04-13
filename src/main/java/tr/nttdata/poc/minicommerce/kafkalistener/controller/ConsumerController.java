@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.web.bind.annotation.RestController;
+import tr.nttdata.poc.minicommerce.kafkalistener.model.KafkaLog;
+import tr.nttdata.poc.minicommerce.kafkalistener.repository.LogRepository;
 
 
 @RestController
@@ -15,13 +17,15 @@ public class ConsumerController {
 
     private static final Logger logger =
             LoggerFactory.getLogger(ConsumerController.class);
+    private static LogRepository logRepository;
 
     @KafkaListener(
             topics = "miniCommerce-log-topic",
             clientIdPrefix = "json",
             containerFactory = "kafkaListenerContainerFactory")
-    public void consume(ConsumerRecord<String, String> record,
-                        @Payload String payload) {
-        logger.info("Received Payload: {} | Record: {}", payload, record);
+    public void consume(ConsumerRecord<String, KafkaLog> record,
+                        @Payload KafkaLog kafkaLog) {
+        logger.info("Received Payload: {} | Record: {}", kafkaLog, record);
+        logRepository.save(kafkaLog);
     }
 }
